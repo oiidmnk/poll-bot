@@ -4,6 +4,7 @@ import typing
 from discord import app_commands
 import os
 from discord.ext.commands import bot
+from random import choice
 
 
 # Press Umschalt+F10 to execute it or replace it with your code.
@@ -58,9 +59,9 @@ def main():
                   description=f"does poll (answers seperated by `{default_split}` can be specified by optional split "
                               "argument)", guilds=[discord.Object(id=id1),
                                                    discord.Object(id=id2)])
-    async def first_command(interaction: discord.Interaction, question: str,
-                            answers: typing.Optional[str] = f"yes{default_split}no",
-                            split: typing.Optional[str] = f"{default_split}"):
+    async def poll( interaction: discord.Interaction, question: str,
+                    answers: typing.Optional[str] = f"yes{default_split}no",
+                    split: typing.Optional[str] = f"{default_split}"):
 
         print("question: " + question + " answers: " + answers + " split: " + split)
 
@@ -92,12 +93,46 @@ def main():
         for i in range(len(answers)):
             await message.add_reaction(numbers_emojis[i])
 
+    @tree.command(  name="oracle",
+                    description=f"answers your question, syntax like poll + additional custom answer option",
+                    guilds=[discord.Object(id=id1),
+                            discord.Object(id=id2)])
+    async def oracle(   interaction: discord.Interaction, question: str,
+                        answers: typing.Optional[str] = f"yes{default_split}no",
+                        split: typing.Optional[str] = f"{default_split}",
+                        custom_answer: typing.Optional[str] = "According to my calculations you should",
+                        custom_answer_end: typing.Optional[str] = ".",):
+
+        message = "New question: " + question + "\n"
+        if answers == f"yes{default_split}no":
+            answers = f"yes{split}no"
+
+        answers = answers.split(split)
+
+        if len(answers) > 9:
+            await interaction.response.send_message("Too many answers")
+            return
+
+        if len(answers) == 2:
+            if answers[0].lower().strip() == "yes" and answers[1].lower().strip() == "no":
+                message += f'\n\n{choice(["Yes", "No", "Definitely", "Absolutely not"])}'
+                await interaction.response.send_message(message)
+                return
+                
+        for i in range(len(answers)):
+            message += numbers_emojis[i] + " " + answers[i].strip() + "\n"
+            chosen = choice(range(len(answers)))
+            
+        message += f"\n\n{custom_answer} {numbers_emojis[chosen] + ' ' + answers[chosen].strip()}{custom_answer_end}"
+        await interaction.response.send_message(message)
+
     @client.event
     async def on_ready():
         print("Ready0!")
         await client.change_presence(activity=discord.Game("with some bitches\nplayers: (-1 of 2)"))
+        await tree.sync(guild=discord.Object(id=id1))
         print("Ready1!")
-        await tree.sync()
+        await tree.sync(guild=discord.Object(id=id2))
         print("Ready2!")
 
     client.run(token)
