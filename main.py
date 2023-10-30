@@ -193,6 +193,13 @@ def main():
             if i == top:
                 break
             message += f"{team['pos']}. {team['name']}: {team['prev_pos']} - {team['score']}\n"
+
+        message = (message[:-1]
+                   .replace("*", "\\*")
+                   .replace("_", "\\_")
+                   .replace("~", "\\~")
+                   .replace("`", "\\`")
+                   .replace("|", "\\|"))
         await interaction.response.send_message(message)
 
     @client.event
