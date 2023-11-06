@@ -201,7 +201,7 @@ def main():
                    .replace("~", "\\~")
                    .replace("`", "\\`")
                    .replace("|", "\\|"))
-        await interaction.followup.send_message(message)
+        await interaction.followup.send(message)
 
     @client.event
     async def on_ready():
