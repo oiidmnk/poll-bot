@@ -160,6 +160,7 @@ def main():
                   guilds=[discord.Object(id=id1),
                           discord.Object(id=id2)])
     async def scoreboard(interaction: discord.Interaction, top: typing.Optional[int] = 30):
+        await interaction.response.defer()
         a = getScoreboard().text
         invalid = 4
         soup = BeautifulSoup(a, 'html.parser')
@@ -200,7 +201,7 @@ def main():
                    .replace("~", "\\~")
                    .replace("`", "\\`")
                    .replace("|", "\\|"))
-        await interaction.response.send_message(message)
+        await interaction.followup.send_message(message)
 
     @client.event
     async def on_ready():
